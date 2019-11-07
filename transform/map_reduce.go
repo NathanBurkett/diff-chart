@@ -10,8 +10,6 @@ type MapReducer func (diff *data_transfer.Diff, dirLevels int) *data_transfer.Di
 func MapReduceDiffByDirectory(diff *data_transfer.Diff, dirLevels int) *data_transfer.Diff {
 	output := data_transfer.NewDiff()
 
-	container := map[string][]*data_transfer.DiffRow{}
-
 	for _, row := range diff.Rows {
 		numSegments := dirLevels
 
@@ -22,21 +20,19 @@ func MapReduceDiffByDirectory(diff *data_transfer.Diff, dirLevels int) *data_tra
 		segments := row.Segments[0:numSegments]
 
 		fullPath := bytes.Join(segments, data_transfer.DirSeparator)
-		fullPathString := string(fullPath)
 
-		container[fullPathString] = append(container[fullPathString], row)
-	}
+		var diffRow *data_transfer.DiffRow
 
-	for fullPath, rows := range container {
-		diffRow := data_transfer.NewDiffRow()
-		diffRow.SetPath([]byte(fullPath))
-
-		for _, row := range rows {
-			diffRow.Insertions = diffRow.Insertions + row.Insertions
-			diffRow.Deletions = diffRow.Deletions + row.Deletions
+		if !output.HasRowWithFullPath(fullPath) {
+			diffRow = data_transfer.NewDiffRow()
+			diffRow.SetPath([]byte(fullPath))
+			output.AddRow(diffRow)
+		} else {
+			diffRow = output.GetRowByFullpath(fullPath)
 		}
 
-		output.AddRow(diffRow)
+		diffRow.Insertions = diffRow.Insertions + row.Insertions
+		diffRow.Deletions = diffRow.Deletions + row.Deletions
 	}
 
 	return output
