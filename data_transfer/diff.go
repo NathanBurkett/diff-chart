@@ -18,19 +18,9 @@ func (d *Diff) AddRow(row *DiffRow) {
 	d.Rows = append(d.Rows, row)
 }
 
-func (d *Diff) HasRowWithFullPath(FullPath []byte) bool {
+func (d *Diff) GetRowByPath(p []byte) *DiffRow {
 	for _, row := range d.Rows {
-		if bytes.Compare(row.FullPath, FullPath) == 0 {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (d *Diff) GetRowByFullpath(FullPath []byte) *DiffRow {
-	for _, row := range d.Rows {
-		if bytes.Compare(row.FullPath, FullPath) == 0 {
+		if bytes.Compare(row.FullPath, p) == 0 {
 			return row
 		}
 	}
@@ -51,5 +41,10 @@ func NewDiffRow() *DiffRow {
 
 func (dr *DiffRow) TotalDelta() uint64 {
 	return dr.Insertions + dr.Deletions
+}
+
+func (dr *DiffRow) InheritDeltas(frmr DiffRow) {
+	dr.Insertions = dr.Insertions + frmr.Insertions
+	dr.Deletions = dr.Deletions + frmr.Deletions
 }
 

@@ -66,6 +66,7 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 	type args struct {
 		diff      *data_transfer.Diff
 		dirLevels int
+		split []byte
 	}
 	tests := []struct {
 		name string
@@ -77,6 +78,7 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 			args: args{
 				diff:      inputDiffs,
 				dirLevels: 1,
+				split: []byte("/"),
 			},
 			want: &data_transfer.Diff{
 				Rows: []*data_transfer.DiffRow{
@@ -104,6 +106,7 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 			args: args{
 				diff:      inputDiffs,
 				dirLevels: 2,
+				split: []byte("/"),
 			},
 			want: &data_transfer.Diff{
 				Rows: []*data_transfer.DiffRow{
@@ -149,7 +152,7 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := transform.MapReduceDiffByDirectory(tt.args.diff, tt.args.dirLevels); !reflect.DeepEqual(got, tt.want) {
+			if got := transform.MapReduceDiffByDirectory(tt.args.diff, tt.args.dirLevels, tt.args.split); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MapReduceDiffByDirectory() = %v, want %v", got, tt.want)
 			}
 		})

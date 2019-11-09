@@ -7,33 +7,28 @@ import (
 
 type MapReducer func (diff *data_transfer.Diff, dirLevels int) *data_transfer.Diff
 
-func MapReduceDiffByDirectory(diff *data_transfer.Diff, dirLevels int) *data_transfer.Diff {
+func MapReduceDiffByDirectory(diff *data_transfer.Diff, dirs int, split []byte) *data_transfer.Diff {
 	output := data_transfer.NewDiff()
 
-	for _, row := range diff.Rows {
-		numSegments := dirLevels
+	for _, frmr := range diff.Rows {
+		num := dirs
 
-		if len(row.Segments) < dirLevels {
-			numSegments = len(row.Segments)
+		if len(frmr.Segments) < dirs {
+			num = len(frmr.Segments)
 		}
 
-		segments := row.Segments[0:numSegments]
+		path := bytes.Join(frmr.Segments[0:num], split)
 
-		fullPath := bytes.Join(segments, data_transfer.DirSeparator)
+		trgt := output.GetRowByPath(path)
+		if trgt == nil {
+			trgt = data_transfer.NewDiffRow()
+			trgt.FullPath = path
+			trgt.Segments = frmr.Segments[0:num]
 
-		var diffRow *data_transfer.DiffRow
-
-		if !output.HasRowWithFullPath(fullPath) {
-			diffRow = data_transfer.NewDiffRow()
-			diffRow.FullPath = fullPath
-			diffRow.Segments = bytes.Split(fullPath, data_transfer.DirSeparator)
-			output.AddRow(diffRow)
-		} else {
-			diffRow = output.GetRowByFullpath(fullPath)
+			output.AddRow(trgt)
 		}
 
-		diffRow.Insertions = diffRow.Insertions + row.Insertions
-		diffRow.Deletions = diffRow.Deletions + row.Deletions
+		trgt.InheritDeltas(*frmr)
 	}
 
 	return output

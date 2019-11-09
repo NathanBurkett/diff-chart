@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"github.com/nathanburkett/diff_table/algorithm"
+	"github.com/nathanburkett/diff_table/data_transfer"
 	"github.com/nathanburkett/diff_table/input"
 	"github.com/nathanburkett/diff_table/output"
 	"github.com/nathanburkett/diff_table/transform"
@@ -34,7 +35,7 @@ func main() {
 		panic(err)
 	}
 
-	diff = transform.MapReduceDiffByDirectory(diff, 1)
+	diff = transform.MapReduceDiffByDirectory(diff, 1, data_transfer.DirSeparator) // move call to reader
 
 	algo := algorithm.TotalDeltaDescendingSorter{
 		Diff: diff,
