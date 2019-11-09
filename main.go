@@ -29,7 +29,7 @@ func main() {
 97      0       vendor/assets/javascripts/redactor/plugins/imagetag.js
 `)
 
-	reader := input.NewCliDiffNumstatReader()
+	reader := input.NewCliDiffNumstatReader(new(data_transfer.Diff))
 	diff, err := reader.Read(bytes.NewBuffer(test))
 	if err != nil {
 		panic(err)

@@ -71,7 +71,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cr := &input.CliDiffNumstatReader{}
+			cr := input.NewCliDiffNumstatReader(new(data_transfer.Diff))
 			got, err := cr.Read(tt.args.reader)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Read() error = %v, wantErr %v", err, tt.wantErr)
@@ -79,25 +79,6 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Read() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestNewCliDiffNumstatReader(t *testing.T) {
-	tests := []struct {
-		name string
-		want *input.CliDiffNumstatReader
-	}{
-		{
-			name: "*CliDiffNumstatReader successfully created",
-			want: &input.CliDiffNumstatReader{},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := input.NewCliDiffNumstatReader(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewCliDiffNumstatReader() = %v, want %v", got, tt.want)
 			}
 		})
 	}
