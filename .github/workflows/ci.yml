@@ -1,5 +1,13 @@
-on: [push, pull_request]
-name: Test
+on:
+  pull_request:
+    paths:
+      - '**.go'
+      - 'Makefile'
+  push:
+    paths:
+      - '**.go'
+      - 'Makefile'
+name: Continuous Integration
 jobs:
   test:
     strategy:
@@ -15,6 +23,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v1
     - name: Test
-      run: go test ./...
+      run: make test -B
     - name: Test w/ Race Detector
-      run: go test -race ./...
+      run: make test-race -B
+    - name: Upload Coverage
+      if: success() && matrix.platform == 'ubuntu-latest' && matrix.go-version == '1.13.x'
+      env:
+        CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+      run: |
+        make coverage -B
+        bash <(curl -s https://codecov.io/bash) -f coverage/output/coverage.txt
