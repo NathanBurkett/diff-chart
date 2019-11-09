@@ -25,7 +25,8 @@ func MapReduceDiffByDirectory(diff *data_transfer.Diff, dirLevels int) *data_tra
 
 		if !output.HasRowWithFullPath(fullPath) {
 			diffRow = data_transfer.NewDiffRow()
-			diffRow.SetPath([]byte(fullPath))
+			diffRow.FullPath = fullPath
+			diffRow.Segments = bytes.Split(fullPath, data_transfer.DirSeparator)
 			output.AddRow(diffRow)
 		} else {
 			diffRow = output.GetRowByFullpath(fullPath)

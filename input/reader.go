@@ -47,7 +47,8 @@ func (cr *CliDiffNumstatReader) Read(reader io.Reader) (*data_transfer.Diff, err
 
 				row.Deletions = del
 			case 2:
-				row.SetPath(col)
+				row.FullPath = col
+				row.Segments = bytes.Split(col, data_transfer.DirSeparator)
 			case 3:
 				return nil, UnexpectedDiffColumn
 			}

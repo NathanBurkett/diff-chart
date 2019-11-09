@@ -49,11 +49,6 @@ func NewDiffRow() *DiffRow {
 	return &DiffRow{}
 }
 
-func (dr *DiffRow) SetPath(path []byte) {
-	dr.FullPath = path
-	dr.Segments = bytes.Split(path, DirSeparator)
-}
-
 func (dr *DiffRow) TotalDelta() uint64 {
 	return dr.Insertions + dr.Deletions
 }
