@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func TestMapReduceDiffByDirectory(t *testing.T) {
-	inputDiffs := &data_transfer.Diff{
+func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
+	diffs := &data_transfer.Diff{
 		Rows: []*data_transfer.DiffRow{
 			{
 				Insertions: 10,
@@ -62,25 +62,29 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 			},
 		},
 	}
-
+	type fields struct {
+		Dirs  int
+		Split []byte
+	}
 	type args struct {
-		diff      *data_transfer.Diff
-		dirLevels int
-		split []byte
+		diff *data_transfer.Diff
 	}
 	tests := []struct {
-		name string
-		args args
-		want *data_transfer.Diff
+		name   string
+		fields fields
+		args   args
+		want   *data_transfer.Diff
 	}{
 		{
-			name: "Maps diffs by directory depth of 1",
-			args: args{
-				diff:      inputDiffs,
-				dirLevels: 1,
-				split: []byte("/"),
+			name:   "Maps diffs by directory depth of 1",
+			fields: fields{
+				Dirs: 1,
+				Split: []byte("/"),
 			},
-			want: &data_transfer.Diff{
+			args:   args{
+				diff: diffs,
+			},
+			want:   &data_transfer.Diff{
 				Rows: []*data_transfer.DiffRow{
 					{
 						Insertions: 40,
@@ -102,13 +106,15 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 			},
 		},
 		{
-			name: "Maps diffs by directory depth of 2",
-			args: args{
-				diff:      inputDiffs,
-				dirLevels: 2,
-				split: []byte("/"),
+			name:   "Maps diffs by directory depth of 2",
+			fields: fields{
+				Dirs: 2,
+				Split: []byte("/"),
 			},
-			want: &data_transfer.Diff{
+			args:   args{
+				diff: diffs,
+			},
+			want:   &data_transfer.Diff{
 				Rows: []*data_transfer.DiffRow{
 					{
 						Insertions: 20,
@@ -152,8 +158,43 @@ func TestMapReduceDiffByDirectory(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := transform.MapReduceDiffByDirectory(tt.args.diff, tt.args.dirLevels, tt.args.split); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapReduceDiffByDirectory() = %v, want %v", got, tt.want)
+			dd := &transform.DirectoryDiffMapReducer{
+				Dirs:  tt.fields.Dirs,
+				Split: tt.fields.Split,
+			}
+			if got := dd.Reduce(tt.args.diff); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Reduce() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewDirectoryDiffMapReducer(t *testing.T) {
+	type args struct {
+		dirs  int
+		split []byte
+	}
+	tests := []struct {
+		name string
+		args args
+		want transform.Reducer
+	}{
+		{
+			name: "Happy Path",
+			args: args{
+				dirs: 1,
+				split: []byte("/"),
+			},
+			want: &transform.DirectoryDiffMapReducer{
+				Dirs:  1,
+				Split: []byte("/"),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := transform.NewDirectoryDiffMapReducer(tt.args.dirs, tt.args.split); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewDirectoryDiffMapReducer() = %v, want %v", got, tt.want)
 			}
 		})
 	}
