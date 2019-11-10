@@ -18,7 +18,7 @@ var (
 	UnexpectedCliDiffColumn = errors.New("unexpected diff report column")
 )
 
-type CliDiffNumstatReader struct{
+type CliDiffNumstatReader struct {
 	Output *data_transfer.Diff
 }
 

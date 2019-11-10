@@ -28,12 +28,15 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 `)),
 			},
 			want: &data_transfer.Diff{
+				Insertions: 45,
+				Deletions:  27,
+				Total:      72,
 				Rows: []*data_transfer.DiffRow{
 					{
 						Insertions: 12,
 						Deletions:  10,
 						FullPath:   []byte("foo/bar.go"),
-						Segments:   [][]byte{
+						Segments: [][]byte{
 							[]byte("foo"),
 							[]byte("bar.go"),
 						},
@@ -42,7 +45,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 						Insertions: 9,
 						Deletions:  5,
 						FullPath:   []byte("foo/baz.go"),
-						Segments:   [][]byte{
+						Segments: [][]byte{
 							[]byte("foo"),
 							[]byte("baz.go"),
 						},
@@ -51,7 +54,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 						Insertions: 24,
 						Deletions:  12,
 						FullPath:   []byte("bar/baz.go"),
-						Segments:   [][]byte{
+						Segments: [][]byte{
 							[]byte("bar"),
 							[]byte("baz.go"),
 						},

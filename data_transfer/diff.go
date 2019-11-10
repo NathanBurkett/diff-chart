@@ -7,7 +7,10 @@ import (
 var DirSeparator = []byte("/")
 
 type Diff struct {
-	Rows []*DiffRow
+	Insertions uint64
+	Deletions  uint64
+	Total      uint64
+	Rows       []*DiffRow
 }
 
 func NewDiff() *Diff {
@@ -15,6 +18,10 @@ func NewDiff() *Diff {
 }
 
 func (d *Diff) AddRow(row *DiffRow) {
+	d.Insertions = d.Insertions + row.Insertions
+	d.Deletions = d.Deletions + row.Deletions
+	d.Total = d.Insertions + d.Deletions
+
 	d.Rows = append(d.Rows, row)
 }
 
@@ -30,9 +37,9 @@ func (d *Diff) GetRowByPath(p []byte) *DiffRow {
 
 type DiffRow struct {
 	Insertions uint64
-	Deletions uint64
-	FullPath []byte
-	Segments [][]byte
+	Deletions  uint64
+	FullPath   []byte
+	Segments   [][]byte
 }
 
 func NewDiffRow() *DiffRow {
@@ -47,4 +54,3 @@ func (dr *DiffRow) InheritDeltas(frmr DiffRow) {
 	dr.Insertions = dr.Insertions + frmr.Insertions
 	dr.Deletions = dr.Deletions + frmr.Deletions
 }
-
