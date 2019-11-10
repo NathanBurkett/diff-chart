@@ -42,7 +42,7 @@ func main() {
 		Diff: diff,
 	})
 
-	writer := output.NewMarkdownWriter(os.Stdout)
+	writer := output.NewMarkdownWriter(os.Stdout, &bytes.Buffer{})
 	if err := writer.Write(diff); err != nil {
 		panic(err)
 	}

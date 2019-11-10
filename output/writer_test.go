@@ -11,17 +11,38 @@ import (
 )
 
 type MockWriter struct {
-	nValue int
-	err    error
+	NWriteValue int
+	WriteErr    error
 }
 
 func (mw MockWriter) Write(p []byte) (int, error) {
-	return mw.nValue, mw.err
+	return mw.NWriteValue, mw.WriteErr
+}
+
+type MockInternalWriter struct {
+	NWriteValue   int
+	WriteErr      error
+	NWriteToValue int64
+	WriteToErr    error
+	BytesVal      []byte
+}
+
+func (miw MockInternalWriter) Write(p []byte) (int, error) {
+	return miw.NWriteValue, miw.WriteErr
+}
+
+func (miw MockInternalWriter) WriteTo(io.Writer) (n int64, err error) {
+	return miw.NWriteToValue, miw.WriteToErr
+}
+
+func (miw MockInternalWriter) Bytes() []byte {
+	return miw.BytesVal
 }
 
 func TestMarkdownWriter_Write(t *testing.T) {
 	type fields struct {
-		Writer io.Writer
+		Writer   io.Writer
+		Internal output.InternalWriter
 	}
 	type args struct {
 		d *data_transfer.Diff
@@ -35,7 +56,8 @@ func TestMarkdownWriter_Write(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				Writer: MockWriter{},
+				Writer:   &bytes.Buffer{},
+				Internal: &bytes.Buffer{},
 			},
 			args: args{
 				d: &data_transfer.Diff{
@@ -79,7 +101,70 @@ func TestMarkdownWriter_Write(t *testing.T) {
 			name: "Writer produces error",
 			fields: fields{
 				Writer: MockWriter{
-					err: errors.New("foo"),
+					WriteErr: errors.New("foo"),
+				},
+				Internal: &bytes.Buffer{},
+			},
+			args: args{
+				d: &data_transfer.Diff{
+					Insertions: 10,
+					Deletions:  20,
+					Total:      30,
+					Rows: []*data_transfer.DiffRow{
+						{
+							Insertions: 10,
+							Deletions:  20,
+							FullPath:   []byte("foo/bar"),
+							Segments: [][]byte{
+								[]byte("foo"),
+								[]byte("bar"),
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Internal produces error on row generation",
+			fields: fields{
+				Writer: &bytes.Buffer{},
+				Internal: MockInternalWriter{
+					NWriteValue:   0,
+					WriteErr:      bytes.ErrTooLarge,
+					NWriteToValue: 0,
+					WriteToErr:    nil,
+				},
+			},
+			args: args{
+				d: &data_transfer.Diff{
+					Insertions: 10,
+					Deletions:  20,
+					Total:      30,
+					Rows: []*data_transfer.DiffRow{
+						{
+							Insertions: 10,
+							Deletions:  20,
+							FullPath:   []byte("foo/bar"),
+							Segments: [][]byte{
+								[]byte("foo"),
+								[]byte("bar"),
+							},
+						},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Internal produces error on WriteTo",
+			fields: fields{
+				Writer: &bytes.Buffer{},
+				Internal: MockInternalWriter{
+					NWriteValue:   0,
+					WriteErr:      nil,
+					NWriteToValue: 0,
+					WriteToErr:    errors.New("unknown error"),
 				},
 			},
 			args: args{
@@ -106,7 +191,8 @@ func TestMarkdownWriter_Write(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mw := &output.MarkdownWriter{
-				Writer: tt.fields.Writer,
+				Writer:   tt.fields.Writer,
+				Internal: tt.fields.Internal,
 			}
 			if err := mw.Write(tt.args.d); (err != nil) != tt.wantErr {
 				t.Errorf("Write() error = %v, wantErr %v", err, tt.wantErr)
@@ -117,7 +203,8 @@ func TestMarkdownWriter_Write(t *testing.T) {
 
 func TestConcreteMarkdownWriter_Write(t *testing.T) {
 	type fields struct {
-		Writer *bytes.Buffer
+		Writer   *bytes.Buffer
+		Internal *bytes.Buffer
 	}
 	type args struct {
 		d *data_transfer.Diff
@@ -132,7 +219,8 @@ func TestConcreteMarkdownWriter_Write(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				Writer: &bytes.Buffer{},
+				Writer:   &bytes.Buffer{},
+				Internal: &bytes.Buffer{},
 			},
 			args: args{
 				d: &data_transfer.Diff{
@@ -183,7 +271,8 @@ func TestConcreteMarkdownWriter_Write(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := tt.fields.Writer
 			mw := &output.MarkdownWriter{
-				Writer: w,
+				Writer:   w,
+				Internal: tt.fields.Internal,
 			}
 			if err := mw.Write(tt.args.d); (err != nil) != tt.wantErr {
 				t.Errorf("Write() error = %v, wantErr %v", err, tt.wantErr)
@@ -197,7 +286,8 @@ func TestConcreteMarkdownWriter_Write(t *testing.T) {
 
 func TestNewMarkdownWriter(t *testing.T) {
 	type args struct {
-		Writer io.Writer
+		Writer   io.Writer
+		Internal output.InternalWriter
 	}
 	tests := []struct {
 		name string
@@ -207,16 +297,18 @@ func TestNewMarkdownWriter(t *testing.T) {
 		{
 			name: "Default",
 			args: args{
-				Writer: MockWriter{},
+				Writer:   MockWriter{},
+				Internal: MockInternalWriter{},
 			},
 			want: &output.MarkdownWriter{
-				Writer: MockWriter{},
+				Writer:   MockWriter{},
+				Internal: MockInternalWriter{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := output.NewMarkdownWriter(tt.args.Writer)
+			got := output.NewMarkdownWriter(tt.args.Writer, tt.args.Internal)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewMarkdownWriter() = %v, want %v", got, tt.want)
 			}

@@ -17,26 +17,36 @@ type Writer interface {
 	Write(diff *data_transfer.Diff) error
 }
 
-type MarkdownWriter struct {
-	Writer io.Writer
+type InternalWriter interface {
+	io.Writer
+	io.WriterTo
+	Bytes() []byte
 }
 
-func NewMarkdownWriter(w io.Writer) Writer {
+type MarkdownWriter struct {
+	Writer   io.Writer
+	Internal InternalWriter
+}
+
+func NewMarkdownWriter(w io.Writer, int InternalWriter) Writer {
 	return &MarkdownWriter{
-		Writer: w,
+		Writer:   w,
+		Internal: int,
 	}
 }
 
 func (mw *MarkdownWriter) Write(d *data_transfer.Diff) error {
-	buf := bytes.NewBuffer([]byte(""))
-
 	for row := range mw.generateRows(d) {
-		if _, err := buf.Write(row); err != nil {
+		if _, err := mw.Internal.Write(row); err != nil {
 			return err
 		}
 	}
 
-	_, err := mw.Writer.Write(buf.Bytes())
+	if _, err := mw.Internal.WriteTo(mw.Writer); err != nil {
+		return err
+	}
+
+	_, err := mw.Writer.Write(mw.Internal.Bytes())
 
 	return err
 }

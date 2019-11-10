@@ -9,12 +9,15 @@ import (
 
 func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 	diffs := &data_transfer.Diff{
+		Insertions: 55,
+		Deletions:  110,
+		Total:      165,
 		Rows: []*data_transfer.DiffRow{
 			{
 				Insertions: 10,
 				Deletions:  20,
 				FullPath:   []byte("foo/bar/baz.go"),
-				Segments:   [][]byte{
+				Segments: [][]byte{
 					[]byte("foo"),
 					[]byte("bar"),
 					[]byte("baz.go"),
@@ -24,7 +27,7 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 				Insertions: 10,
 				Deletions:  20,
 				FullPath:   []byte("foo/baz.go"),
-				Segments:   [][]byte{
+				Segments: [][]byte{
 					[]byte("foo"),
 					[]byte("baz.go"),
 				},
@@ -33,7 +36,7 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 				Insertions: 10,
 				Deletions:  20,
 				FullPath:   []byte("foo/bar/foo.go"),
-				Segments:   [][]byte{
+				Segments: [][]byte{
 					[]byte("foo"),
 					[]byte("bar"),
 					[]byte("foo.go"),
@@ -43,7 +46,7 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 				Insertions: 10,
 				Deletions:  20,
 				FullPath:   []byte("foo/foo/foo/baz.go"),
-				Segments:   [][]byte{
+				Segments: [][]byte{
 					[]byte("foo"),
 					[]byte("foo"),
 					[]byte("foo"),
@@ -54,10 +57,18 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 				Insertions: 10,
 				Deletions:  20,
 				FullPath:   []byte("bar/foo/baz.go"),
-				Segments:   [][]byte{
+				Segments: [][]byte{
 					[]byte("bar"),
 					[]byte("foo"),
 					[]byte("baz.go"),
+				},
+			},
+			{
+				Insertions: 5,
+				Deletions:  10,
+				FullPath:   []byte("main.go"),
+				Segments: [][]byte{
+					[]byte("main.go"),
 				},
 			},
 		},
@@ -76,15 +87,18 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 		want   *data_transfer.Diff
 	}{
 		{
-			name:   "Maps diffs by directory depth of 1",
+			name: "Maps diffs by directory depth of 1",
 			fields: fields{
-				Dirs: 1,
+				Dirs:  1,
 				Split: []byte("/"),
 			},
-			args:   args{
+			args: args{
 				diff: diffs,
 			},
-			want:   &data_transfer.Diff{
+			want: &data_transfer.Diff{
+				Insertions: 55,
+				Deletions:  110,
+				Total:      165,
 				Rows: []*data_transfer.DiffRow{
 					{
 						Insertions: 40,
@@ -98,23 +112,34 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 						Insertions: 10,
 						Deletions:  20,
 						FullPath:   []byte("bar"),
-						Segments:   [][]byte{
+						Segments: [][]byte{
 							[]byte("bar"),
+						},
+					},
+					{
+						Insertions: 5,
+						Deletions:  10,
+						FullPath:   []byte("main.go"),
+						Segments: [][]byte{
+							[]byte("main.go"),
 						},
 					},
 				},
 			},
 		},
 		{
-			name:   "Maps diffs by directory depth of 2",
+			name: "Maps diffs by directory depth of 2",
 			fields: fields{
-				Dirs: 2,
+				Dirs:  2,
 				Split: []byte("/"),
 			},
-			args:   args{
+			args: args{
 				diff: diffs,
 			},
-			want:   &data_transfer.Diff{
+			want: &data_transfer.Diff{
+				Insertions: 55,
+				Deletions:  110,
+				Total:      165,
 				Rows: []*data_transfer.DiffRow{
 					{
 						Insertions: 20,
@@ -129,7 +154,7 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 						Insertions: 10,
 						Deletions:  20,
 						FullPath:   []byte("foo/baz.go"),
-						Segments:   [][]byte{
+						Segments: [][]byte{
 							[]byte("foo"),
 							[]byte("baz.go"),
 						},
@@ -150,6 +175,14 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 						Segments: [][]byte{
 							[]byte("bar"),
 							[]byte("foo"),
+						},
+					},
+					{
+						Insertions: 5,
+						Deletions:  10,
+						FullPath:   []byte("main.go"),
+						Segments: [][]byte{
+							[]byte("main.go"),
 						},
 					},
 				},
@@ -182,7 +215,7 @@ func TestNewDirectoryDiffMapReducer(t *testing.T) {
 		{
 			name: "Happy Path",
 			args: args{
-				dirs: 1,
+				dirs:  1,
 				split: []byte("/"),
 			},
 			want: &transform.DirectoryDiffMapReducer{

@@ -23,6 +23,9 @@ func NewDirectoryDiffMapReducer(dirs int, split []byte) Reducer {
 
 func (dd *DirectoryDiffMapReducer) Reduce(diff *data_transfer.Diff) *data_transfer.Diff {
 	o := data_transfer.NewDiff()
+	o.Insertions = diff.Insertions
+	o.Deletions = diff.Deletions
+	o.Total = diff.Total
 
 	for _, frmr := range diff.Rows {
 		n := dd.Dirs

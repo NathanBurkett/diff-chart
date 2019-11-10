@@ -20,8 +20,8 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Successfully read",
-			args:    args{
+			name: "Successfully read",
+			args: args{
 				reader: bytes.NewBuffer([]byte(`12      10      foo/bar.go
 9       5       foo/baz.go
 24      12      bar/baz.go
@@ -64,11 +64,27 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "Unknown column in diff numstat",
-			args:    args{
+			name: "Unknown column in diff numstat",
+			args: args{
 				reader: bytes.NewBuffer([]byte(`12      10      foo/bar.go     foo`)),
 			},
-			want: nil,
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Cannot parse first column to int",
+			args: args{
+				reader: bytes.NewBuffer([]byte(`twelve      10      foo/bar.go`)),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Cannot parse second column to int",
+			args: args{
+				reader: bytes.NewBuffer([]byte(`12      ten      foo/bar.go`)),
+			},
+			want:    nil,
 			wantErr: true,
 		},
 	}
