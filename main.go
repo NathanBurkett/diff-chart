@@ -35,15 +35,15 @@ func main() {
 		panic(err)
 	}
 
-	diff = transform.MapReduceDiffByDirectory(diff, 1, data_transfer.DirSeparator) // move call to reader
+	reducer := transform.NewDirectoryDiffMapReducer(1, []byte("/"))
+	diff = reducer.Reduce(diff)
 
-	algo := algorithm.TotalDeltaDescendingSorter{
+	sort.Sort(algorithm.TotalDeltaDescendingSorter{
 		Diff: diff,
-	}
+	})
 
-	sort.Sort(algo)
-
-	if err := output.Write(os.Stdout, diff); err != nil {
+	writer := output.NewMarkdownWriter(os.Stdout)
+	if err := writer.Write(diff); err != nil {
 		panic(err)
 	}
 }
