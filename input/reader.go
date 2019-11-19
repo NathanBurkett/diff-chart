@@ -9,6 +9,12 @@ import (
 	"strconv"
 )
 
+const TypeGit = "cli"
+
+var Types = []string{
+	TypeGit,
+}
+
 type DiffReader interface {
 	Generate(scn *bufio.Scanner) chan [][]byte
 	TransformToDiffRow(fields [][]byte) (*data_transfer.DiffRow, error)
@@ -28,19 +34,20 @@ func NewCliDiffNumstatReader(diff *data_transfer.Diff) *CliDiffNumstatReader {
 	}
 }
 
-func (cr *CliDiffNumstatReader) Read(reader io.Reader) (*data_transfer.Diff, error) {
-	scn := bufio.NewScanner(reader)
+func Read(drdr DiffReader, rdr io.Reader) (*data_transfer.Diff, error) {
+	diff := new(data_transfer.Diff)
+	scn := bufio.NewScanner(rdr)
 
-	for cols := range cr.Generate(scn) {
-		row, err := cr.TransformToDiffRow(cols)
+	for cols := range drdr.Generate(scn) {
+		row, err := drdr.TransformToDiffRow(cols)
 		if err != nil {
-			return nil, err
+			return diff, err
 		}
 
-		cr.Output.AddRow(row)
+		diff.AddRow(row)
 	}
 
-	return cr.Output, nil
+	return diff, nil
 }
 
 func (cr *CliDiffNumstatReader) Generate(scanner *bufio.Scanner) chan [][]byte {

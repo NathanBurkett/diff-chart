@@ -68,7 +68,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`12      10      foo/bar.go     foo`)),
 			},
-			want:    nil,
+			want:    &data_transfer.Diff{},
 			wantErr: true,
 		},
 		{
@@ -76,7 +76,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`twelve      10      foo/bar.go`)),
 			},
-			want:    nil,
+			want:    &data_transfer.Diff{},
 			wantErr: true,
 		},
 		{
@@ -84,14 +84,14 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`12      ten      foo/bar.go`)),
 			},
-			want:    nil,
+			want:    &data_transfer.Diff{},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cr := input.NewCliDiffNumstatReader(new(data_transfer.Diff))
-			got, err := cr.Read(tt.args.reader)
+			got, err := input.Read(cr, tt.args.reader)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Read() error = %v, wantErr %v", err, tt.wantErr)
 				return
