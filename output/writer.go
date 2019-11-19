@@ -7,6 +7,12 @@ import (
 	"io"
 )
 
+const TypeMarkdownCli = "github-md"
+
+var Types = []string{
+	TypeMarkdownCli,
+}
+
 var (
 	markdownTableStart     = []byte("| ")
 	markdownTableSeparator = []byte(" | ")
