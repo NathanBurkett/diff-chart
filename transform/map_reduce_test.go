@@ -195,7 +195,7 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 				Dirs:  tt.fields.Dirs,
 				Split: tt.fields.Split,
 			}
-			if got := dd.Reduce(tt.args.diff); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := transform.Reduce(dd, tt.args.diff); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Reduce() = %v, want %v", got, tt.want)
 			}
 		})

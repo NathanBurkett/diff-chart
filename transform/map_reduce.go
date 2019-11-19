@@ -5,8 +5,19 @@ import (
 	"github.com/nathanburkett/diff_table/data_transfer"
 )
 
+const TypeDirectoryReducer = "dir"
+
+var Types = []string{
+	TypeDirectoryReducer,
+}
+
 type Reducer interface {
 	Reduce(diff *data_transfer.Diff) *data_transfer.Diff
+}
+
+func Reduce(r Reducer, d *data_transfer.Diff) (*data_transfer.Diff, error) {
+	diff := r.Reduce(d)
+	return diff, nil
 }
 
 type DirectoryDiffMapReducer struct {
