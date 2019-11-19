@@ -4,7 +4,6 @@ import (
 	"github.com/nathanburkett/diff_table/algorithm"
 	"github.com/nathanburkett/diff_table/data_transfer"
 	"reflect"
-	"sort"
 	"testing"
 )
 
@@ -56,7 +55,7 @@ func TestTotalDeltaDescendingSorter_Sort(t *testing.T) {
 		want   *data_transfer.Diff
 	}{
 		{
-			name:   "",
+			name:   "Descending sort works as expected",
 			fields: fields{
 				Diff: testBed,
 			},
@@ -72,11 +71,9 @@ func TestTotalDeltaDescendingSorter_Sort(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dds := algorithm.TotalDeltaDescendingSorter{
-				Diff: tt.fields.Diff,
-			}
-			if sort.Sort(dds); !reflect.DeepEqual(dds.Diff, tt.want) {
-				t.Errorf("After sort got = %v, want %v", dds.Diff, tt.want)
+			dds := algorithm.NewTotalDeltaDescendingSorter()
+			if result, _ := algorithm.Sort(dds, tt.fields.Diff); !reflect.DeepEqual(result, tt.want) {
+				t.Errorf("After sort got = %v, want %v", result, tt.want)
 			}
 		})
 	}
