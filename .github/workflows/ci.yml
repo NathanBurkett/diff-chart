@@ -27,9 +27,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v1
     - name: Test
-      run: make test -B
+      run: |
+        make test -B
     - name: Test w/ Race Detector
-      run: make test-race -B
+      run: |
+        make test-race -B
     - name: Lint
       if: success() && matrix.platform == 'ubuntu-latest' && matrix.go-version == '1.13.x'
       run: |
