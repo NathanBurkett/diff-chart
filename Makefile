@@ -17,5 +17,5 @@ coverage-html: ## Build coverage report with html output
 coverage: ## Build coverage report
 	@./coverage/run.sh
 
-lint:
-	@$(GOPATH)/bin/golint -set_exit_status
+lint: ## Lint go files
+	@golint -set_exit_status ./...
