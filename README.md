@@ -18,3 +18,33 @@ Flags:
 
 Use "diff-chart [command] --help" for more information about a command.
 ```
+
+## Example
+
+```bash
+diff-chart diff -d ae13803 -u 51b256f
+```
+yields
+```
+| Directory | +/- | Δ % |
+| --- | --- | --- |
+| go.sum | +167/-0 | 21.44% |
+| run | +142/-0 | 18.23% |
+| algorithm | +107/-8 | 14.76% |
+| input | +95/-11 | 13.61% |
+| transform | +88/-1 | 11.42% |
+| output | +86/-0 | 11.04% |
+| cmd | +62/-0 | 7.96% |
+| go.mod | +12/-0 | 1.54% |
+```
+
+| Directory | +/- | Δ % |
+| --- | --- | --- |
+| go.sum | +167/-0 | 21.44% |
+| run | +142/-0 | 18.23% |
+| algorithm | +107/-8 | 14.76% |
+| input | +95/-11 | 13.61% |
+| transform | +88/-1 | 11.42% |
+| output | +86/-0 | 11.04% |
+| cmd | +62/-0 | 7.96% |
+| go.mod | +12/-0 | 1.54% |
