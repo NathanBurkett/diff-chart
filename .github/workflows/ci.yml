@@ -1,16 +1,8 @@
 on:
-  pull_request:
-    paths:
-      - 'go.mod'
-      - 'go.sum'
-      - '**.go'
-      - 'Makefile'
   push:
-    paths:
-      - 'go.mod'
-      - 'go.sum'
-      - '**.go'
-      - 'Makefile'
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
 name: Continuous Integration
 jobs:
   test:
