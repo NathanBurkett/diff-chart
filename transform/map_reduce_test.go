@@ -1,18 +1,18 @@
 package transform_test
 
 import (
-	"github.com/nathanburkett/diff_table/data_transfer"
-	"github.com/nathanburkett/diff_table/transform"
+	"github.com/nathanburkett/diff-chart/datatransfer"
+	"github.com/nathanburkett/diff-chart/transform"
 	"reflect"
 	"testing"
 )
 
 func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
-	diffs := &data_transfer.Diff{
+	diffs := &datatransfer.Diff{
 		Insertions: 55,
 		Deletions:  110,
 		Total:      165,
-		Rows: []*data_transfer.DiffRow{
+		Rows: []*datatransfer.DiffRow{
 			{
 				Insertions: 10,
 				Deletions:  20,
@@ -78,13 +78,13 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 		Split []byte
 	}
 	type args struct {
-		diff *data_transfer.Diff
+		diff *datatransfer.Diff
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   *data_transfer.Diff
+		want   *datatransfer.Diff
 	}{
 		{
 			name: "Maps diffs by directory depth of 1",
@@ -95,11 +95,11 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 			args: args{
 				diff: diffs,
 			},
-			want: &data_transfer.Diff{
+			want: &datatransfer.Diff{
 				Insertions: 55,
 				Deletions:  110,
 				Total:      165,
-				Rows: []*data_transfer.DiffRow{
+				Rows: []*datatransfer.DiffRow{
 					{
 						Insertions: 40,
 						Deletions:  80,
@@ -136,11 +136,11 @@ func TestDirectoryDiffMapReducer_Reduce(t *testing.T) {
 			args: args{
 				diff: diffs,
 			},
-			want: &data_transfer.Diff{
+			want: &datatransfer.Diff{
 				Insertions: 55,
 				Deletions:  110,
 				Total:      165,
-				Rows: []*data_transfer.DiffRow{
+				Rows: []*datatransfer.DiffRow{
 					{
 						Insertions: 20,
 						Deletions:  40,

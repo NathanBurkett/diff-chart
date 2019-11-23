@@ -1,13 +1,13 @@
 package algorithm_test
 
 import (
-	"github.com/nathanburkett/diff_table/algorithm"
-	"github.com/nathanburkett/diff_table/data_transfer"
+	"github.com/nathanburkett/diff-chart/algorithm"
+	"github.com/nathanburkett/diff-chart/datatransfer"
 	"reflect"
 	"testing"
 )
 
-var item1 = data_transfer.DiffRow{
+var item1 = datatransfer.DiffRow{
 	Insertions: 49,
 	Deletions:  0,
 	FullPath:   []byte("foo/bar"),
@@ -17,7 +17,7 @@ var item1 = data_transfer.DiffRow{
 	},
 }
 
-var item2 = data_transfer.DiffRow{
+var item2 = datatransfer.DiffRow{
 	Insertions: 25,
 	Deletions:  25,
 	FullPath:   []byte("foo/baz"),
@@ -27,7 +27,7 @@ var item2 = data_transfer.DiffRow{
 	},
 }
 
-var item3 = data_transfer.DiffRow{
+var item3 = datatransfer.DiffRow{
 	Insertions: 0,
 	Deletions:  51,
 	FullPath:   []byte("bar/baz"),
@@ -37,8 +37,8 @@ var item3 = data_transfer.DiffRow{
 	},
 }
 
-var testBed = &data_transfer.Diff{
-	Rows: []*data_transfer.DiffRow{
+var testBed = &datatransfer.Diff{
+	Rows: []*datatransfer.DiffRow{
 		&item1,
 		&item2,
 		&item3,
@@ -47,20 +47,20 @@ var testBed = &data_transfer.Diff{
 
 func TestTotalDeltaDescendingSorter_Sort(t *testing.T) {
 	type fields struct {
-		Diff *data_transfer.Diff
+		Diff *datatransfer.Diff
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   *data_transfer.Diff
+		want   *datatransfer.Diff
 	}{
 		{
 			name:   "Descending sort works as expected",
 			fields: fields{
 				Diff: testBed,
 			},
-			want:   &data_transfer.Diff{
-				Rows: []*data_transfer.DiffRow{
+			want:   &datatransfer.Diff{
+				Rows: []*datatransfer.DiffRow{
 					&item3,
 					&item2,
 					&item1,

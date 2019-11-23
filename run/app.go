@@ -4,16 +4,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/nathanburkett/diff_table/algorithm"
-	"github.com/nathanburkett/diff_table/input"
-	"github.com/nathanburkett/diff_table/output"
-	"github.com/nathanburkett/diff_table/transform"
+	"github.com/nathanburkett/diff-chart/algorithm"
+	"github.com/nathanburkett/diff-chart/input"
+	"github.com/nathanburkett/diff-chart/output"
+	"github.com/nathanburkett/diff-chart/transform"
 	"os/exec"
 )
 
+// ErrRuntime indicates an error only detectable at runtime
 var ErrRuntime = errors.New("runtime error")
 
-type CmdArgs struct {
+// CmdFlags possible command invocation flag values
+type CmdFlags struct {
 	DownstreamRef string
 	UpstreamRef   string
 	InputType     string
@@ -22,43 +24,46 @@ type CmdArgs struct {
 	SortType      string
 }
 
+// App managing struct which runs entire invocation process end-to-end
 type App struct {
-	Args    *CmdArgs
+	Flags   *CmdFlags
 	Reader  input.DiffReader
 	Reducer transform.Reducer
 	Writer  output.Writer
 	Sorter  algorithm.Sorter
 }
 
+// NewApp factory func for run.App
 func NewApp() *App {
 	return &App{
-		Args: &CmdArgs{},
+		Flags: &CmdFlags{},
 	}
 }
 
+// Attach attach instances based upon flags
 func (a *App) Attach() error {
-	read, err := input.Make(a.Args.InputType)
+	read, err := input.Make(a.Flags.InputType)
 	if err != nil {
 		return err
 	}
 
 	a.Reader = read
 
-	reduce, err := transform.Make(a.Args.ReducerType)
+	reduce, err := transform.Make(a.Flags.ReducerType)
 	if err != nil {
 		return err
 	}
 
 	a.Reducer = reduce
 
-	w, err := output.Make(a.Args.OutputType)
+	w, err := output.Make(a.Flags.OutputType)
 	if err != nil {
 		return err
 	}
 
 	a.Writer = w
 
-	s, err := algorithm.Make(a.Args.SortType)
+	s, err := algorithm.Make(a.Flags.SortType)
 	if err != nil {
 		return err
 	}
@@ -68,29 +73,30 @@ func (a *App) Attach() error {
 	return nil
 }
 
+// Run run end-to-end process of invocation
 func (a *App) Run() error {
-	out, err := getCliDiffBytes(a.Args.UpstreamRef, a.Args.DownstreamRef)
+	out, err := getCliDiffBytes(a.Flags.UpstreamRef, a.Flags.DownstreamRef)
 	if err != nil {
-		return fmt.Errorf("%s: %s\n", ErrRuntime, err)
+		return fmt.Errorf("%s: %s", ErrRuntime, err)
 	}
 
 	diff, err := input.Read(a.Reader, bytes.NewBuffer(out))
 	if err != nil {
-		return fmt.Errorf("%s: %s\n", ErrRuntime, err)
+		return fmt.Errorf("%s: %s", ErrRuntime, err)
 	}
 
 	diff, err = transform.Reduce(a.Reducer, diff)
 	if err != nil {
-		return fmt.Errorf("%s: %s\n", ErrRuntime, err)
+		return fmt.Errorf("%s: %s", ErrRuntime, err)
 	}
 
 	diff, err = algorithm.Sort(a.Sorter, diff)
 	if err != nil {
-		return fmt.Errorf("%s: %s\n", ErrRuntime, err)
+		return fmt.Errorf("%s: %s", ErrRuntime, err)
 	}
 
 	if err := a.Writer.Write(diff); err != nil {
-		return fmt.Errorf("%s: %s\n", ErrRuntime, err)
+		return fmt.Errorf("%s: %s", ErrRuntime, err)
 	}
 
 	return nil

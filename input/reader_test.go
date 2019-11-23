@@ -2,8 +2,8 @@ package input_test
 
 import (
 	"bytes"
-	"github.com/nathanburkett/diff_table/data_transfer"
-	"github.com/nathanburkett/diff_table/input"
+	"github.com/nathanburkett/diff-chart/datatransfer"
+	"github.com/nathanburkett/diff-chart/input"
 	"io"
 	"reflect"
 	"testing"
@@ -16,7 +16,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *data_transfer.Diff
+		want    *datatransfer.Diff
 		wantErr bool
 	}{
 		{
@@ -27,11 +27,11 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 24      12      bar/baz.go
 `)),
 			},
-			want: &data_transfer.Diff{
+			want: &datatransfer.Diff{
 				Insertions: 45,
 				Deletions:  27,
 				Total:      72,
-				Rows: []*data_transfer.DiffRow{
+				Rows: []*datatransfer.DiffRow{
 					{
 						Insertions: 12,
 						Deletions:  10,
@@ -68,7 +68,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`12      10      foo/bar.go     foo`)),
 			},
-			want:    &data_transfer.Diff{},
+			want:    &datatransfer.Diff{},
 			wantErr: true,
 		},
 		{
@@ -76,7 +76,7 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`twelve      10      foo/bar.go`)),
 			},
-			want:    &data_transfer.Diff{},
+			want:    &datatransfer.Diff{},
 			wantErr: true,
 		},
 		{
@@ -84,13 +84,13 @@ func TestCliDiffNumstatReader_Read(t *testing.T) {
 			args: args{
 				reader: bytes.NewBuffer([]byte(`12      ten      foo/bar.go`)),
 			},
-			want:    &data_transfer.Diff{},
+			want:    &datatransfer.Diff{},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cr := input.NewCliDiffNumstatReader(new(data_transfer.Diff))
+			cr := input.NewCliDiffNumstatReader(new(datatransfer.Diff))
 			got, err := input.Read(cr, tt.args.reader)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Read() error = %v, wantErr %v", err, tt.wantErr)

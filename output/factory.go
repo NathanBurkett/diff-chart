@@ -7,15 +7,17 @@ import (
 	"strings"
 )
 
-var ErrWriterTypeNotFound  = fmt.Errorf("unknown writer type. only types: %s", strings.Join(Types, ", "))
+// ErrWriterTypeNotFound indicates flag and output.Writer pairing not found
+var ErrWriterTypeNotFound = fmt.Errorf("unknown writer type. only types: %s", strings.Join(Types, ", "))
 
-func Make(t string) (Writer, error) {
+// Make returns output.Writer if can be built from flag otherwise returns err
+func Make(flag string) (Writer, error) {
 	var (
 		w Writer
 		err error
 	)
 
-	switch t {
+	switch flag {
 	case TypeMarkdownCli:
 		w = NewMarkdownWriter(os.Stdout, &bytes.Buffer{})
 	default:

@@ -3,8 +3,8 @@ package output_test
 import (
 	"bytes"
 	"errors"
-	"github.com/nathanburkett/diff_table/data_transfer"
-	"github.com/nathanburkett/diff_table/output"
+	"github.com/nathanburkett/diff-chart/datatransfer"
+	"github.com/nathanburkett/diff-chart/output"
 	"io"
 	"reflect"
 	"testing"
@@ -45,7 +45,7 @@ func TestMarkdownWriter_Write(t *testing.T) {
 		Internal output.InternalWriter
 	}
 	type args struct {
-		d *data_transfer.Diff
+		d *datatransfer.Diff
 	}
 	tests := []struct {
 		name    string
@@ -60,11 +60,11 @@ func TestMarkdownWriter_Write(t *testing.T) {
 				Internal: &bytes.Buffer{},
 			},
 			args: args{
-				d: &data_transfer.Diff{
+				d: &datatransfer.Diff{
 					Insertions: 55,
 					Deletions:  45,
 					Total:      100,
-					Rows: []*data_transfer.DiffRow{
+					Rows: []*datatransfer.DiffRow{
 						{
 							Insertions: 10,
 							Deletions:  20,
@@ -106,11 +106,11 @@ func TestMarkdownWriter_Write(t *testing.T) {
 				Internal: &bytes.Buffer{},
 			},
 			args: args{
-				d: &data_transfer.Diff{
+				d: &datatransfer.Diff{
 					Insertions: 10,
 					Deletions:  20,
 					Total:      30,
-					Rows: []*data_transfer.DiffRow{
+					Rows: []*datatransfer.DiffRow{
 						{
 							Insertions: 10,
 							Deletions:  20,
@@ -137,11 +137,11 @@ func TestMarkdownWriter_Write(t *testing.T) {
 				},
 			},
 			args: args{
-				d: &data_transfer.Diff{
+				d: &datatransfer.Diff{
 					Insertions: 10,
 					Deletions:  20,
 					Total:      30,
-					Rows: []*data_transfer.DiffRow{
+					Rows: []*datatransfer.DiffRow{
 						{
 							Insertions: 10,
 							Deletions:  20,
@@ -168,11 +168,11 @@ func TestMarkdownWriter_Write(t *testing.T) {
 				},
 			},
 			args: args{
-				d: &data_transfer.Diff{
+				d: &datatransfer.Diff{
 					Insertions: 10,
 					Deletions:  20,
 					Total:      30,
-					Rows: []*data_transfer.DiffRow{
+					Rows: []*datatransfer.DiffRow{
 						{
 							Insertions: 10,
 							Deletions:  20,
@@ -207,7 +207,7 @@ func TestConcreteMarkdownWriter_Write(t *testing.T) {
 		Internal *bytes.Buffer
 	}
 	type args struct {
-		d *data_transfer.Diff
+		d *datatransfer.Diff
 	}
 	tests := []struct {
 		name      string
@@ -223,11 +223,11 @@ func TestConcreteMarkdownWriter_Write(t *testing.T) {
 				Internal: &bytes.Buffer{},
 			},
 			args: args{
-				d: &data_transfer.Diff{
+				d: &datatransfer.Diff{
 					Insertions: 55,
 					Deletions:  45,
 					Total:      100,
-					Rows: []*data_transfer.DiffRow{
+					Rows: []*datatransfer.DiffRow{
 						{
 							Insertions: 10,
 							Deletions:  20,

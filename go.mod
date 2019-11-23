@@ -1,4 +1,4 @@
-module github.com/nathanburkett/diff_table
+module github.com/nathanburkett/diff-chart
 
 go 1.13
 

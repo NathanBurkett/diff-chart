@@ -3,12 +3,14 @@ package output
 import (
 	"bytes"
 	"fmt"
-	"github.com/nathanburkett/diff_table/data_transfer"
+	"github.com/nathanburkett/diff-chart/datatransfer"
 	"io"
 )
 
+// TypeMarkdownCli holds flag value for MarkdownWriter type
 const TypeMarkdownCli = "github-md"
 
+// Types varying types of output.Writer
 var Types = []string{
 	TypeMarkdownCli,
 }
@@ -19,21 +21,25 @@ var (
 	markdownTableEnd       = []byte(" |\n")
 )
 
+// Writer interface that all concrete output writing structs should implement
 type Writer interface {
-	Write(diff *data_transfer.Diff) error
+	Write(diff *datatransfer.Diff) error
 }
 
+// InternalWriter writer which can write to a data stream and another io.Writer
 type InternalWriter interface {
 	io.Writer
 	io.WriterTo
 	Bytes() []byte
 }
 
+// MarkdownWriter struct responsible for outputting markdown
 type MarkdownWriter struct {
 	Writer   io.Writer
 	Internal InternalWriter
 }
 
+// NewMarkdownWriter factory func for MarkdownWriter
 func NewMarkdownWriter(w io.Writer, int InternalWriter) Writer {
 	return &MarkdownWriter{
 		Writer:   w,
@@ -41,7 +47,8 @@ func NewMarkdownWriter(w io.Writer, int InternalWriter) Writer {
 	}
 }
 
-func (mw *MarkdownWriter) Write(d *data_transfer.Diff) error {
+// Write write diff to select medium
+func (mw *MarkdownWriter) Write(d *datatransfer.Diff) error {
 	for row := range mw.generateRows(d) {
 		if _, err := mw.Internal.Write(row); err != nil {
 			return err
@@ -57,7 +64,7 @@ func (mw *MarkdownWriter) Write(d *data_transfer.Diff) error {
 	return err
 }
 
-func (mw *MarkdownWriter) generateRows(d *data_transfer.Diff) chan []byte {
+func (mw *MarkdownWriter) generateRows(d *datatransfer.Diff) chan []byte {
 	ch := make(chan []byte)
 
 	go func() {
@@ -80,7 +87,7 @@ func (mw *MarkdownWriter) generateRows(d *data_transfer.Diff) chan []byte {
 	return ch
 }
 
-func (mw *MarkdownWriter) unpackRowToBytes(r *data_transfer.DiffRow, f float64) []byte {
+func (mw *MarkdownWriter) unpackRowToBytes(r *datatransfer.DiffRow, f float64) []byte {
 	b := [][]byte{
 		r.FullPath,
 		[]byte(fmt.Sprintf("+%d/-%d", r.Insertions, r.Deletions)),

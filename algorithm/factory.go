@@ -5,15 +5,17 @@ import (
 	"strings"
 )
 
+// ErrSortTypeNotFound indicates flag and algorithm.Sorter pairing not found
 var ErrSortTypeNotFound = fmt.Errorf("unknown sort type. only types: %s", strings.Join(Types, ", "))
 
-func Make(t string) (Sorter, error) {
+// Make returns algorithm.Sorter if can be built from flag otherwise returns err
+func Make(flag string) (Sorter, error) {
 	var (
 		s Sorter
 		err error
 	)
 
-	switch t {
+	switch flag {
 	case TypeTotalDeltaDesc:
 		s = NewTotalDeltaDescendingSorter()
 	default:

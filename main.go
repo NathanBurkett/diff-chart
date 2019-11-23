@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nathanburkett/diff_table/cmd"
+	"github.com/nathanburkett/diff-chart/cmd"
 )
 
 func main() {

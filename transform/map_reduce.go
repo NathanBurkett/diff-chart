@@ -2,29 +2,35 @@ package transform
 
 import (
 	"bytes"
-	"github.com/nathanburkett/diff_table/data_transfer"
+	"github.com/nathanburkett/diff-chart/datatransfer"
 )
 
+// TypeDirectoryReducer holds flag value for DirectoryDiffMapReducer
 const TypeDirectoryReducer = "dir"
 
+// Types varying types of transform.Reducer
 var Types = []string{
 	TypeDirectoryReducer,
 }
 
+// Reducer interface all concrete map reducing structs should implement
 type Reducer interface {
-	Reduce(diff *data_transfer.Diff) *data_transfer.Diff
+	Reduce(diff *datatransfer.Diff) *datatransfer.Diff
 }
 
-func Reduce(r Reducer, d *data_transfer.Diff) (*data_transfer.Diff, error) {
+// Reduce package level map-reduce handler
+func Reduce(r Reducer, d *datatransfer.Diff) (*datatransfer.Diff, error) {
 	diff := r.Reduce(d)
 	return diff, nil
 }
 
+// DirectoryDiffMapReducer reducer which condenses diff rows based upon directories
 type DirectoryDiffMapReducer struct {
 	Dirs  int
 	Split []byte
 }
 
+// NewDirectoryDiffMapReducer factory func for DirectoryDiffMapReducer
 func NewDirectoryDiffMapReducer(dirs int, split []byte) Reducer {
 	return &DirectoryDiffMapReducer{
 		Dirs:  dirs,
@@ -32,8 +38,9 @@ func NewDirectoryDiffMapReducer(dirs int, split []byte) Reducer {
 	}
 }
 
-func (dd *DirectoryDiffMapReducer) Reduce(diff *data_transfer.Diff) *data_transfer.Diff {
-	o := data_transfer.NewDiff()
+// Reduce map reduce diff rows by directory
+func (dd *DirectoryDiffMapReducer) Reduce(diff *datatransfer.Diff) *datatransfer.Diff {
+	o := datatransfer.NewDiff()
 	o.Insertions = diff.Insertions
 	o.Deletions = diff.Deletions
 	o.Total = diff.Total
@@ -49,7 +56,7 @@ func (dd *DirectoryDiffMapReducer) Reduce(diff *data_transfer.Diff) *data_transf
 
 		trgt := o.GetRowByPath(path)
 		if trgt == nil {
-			trgt = data_transfer.NewDiffRow()
+			trgt = datatransfer.NewDiffRow()
 			trgt.FullPath = path
 			trgt.Segments = frmr.Segments[0:n]
 

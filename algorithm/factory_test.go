@@ -2,14 +2,14 @@ package algorithm_test
 
 import (
 	"fmt"
-	"github.com/nathanburkett/diff_table/algorithm"
+	"github.com/nathanburkett/diff-chart/algorithm"
 	"reflect"
 	"testing"
 )
 
 func TestMake(t *testing.T) {
 	type args struct {
-		t string
+		flag string
 	}
 	tests := []struct {
 		name    string
@@ -20,7 +20,7 @@ func TestMake(t *testing.T) {
 		{
 			name:    fmt.Sprintf("\"%s\" yields TotalDeltaDescendingSorter", algorithm.TypeTotalDeltaDesc),
 			args:    args{
-				t: algorithm.TypeTotalDeltaDesc,
+				flag: algorithm.TypeTotalDeltaDesc,
 			},
 			want:    &algorithm.TotalDeltaDescendingSorter{},
 			wantErr: false,
@@ -28,7 +28,7 @@ func TestMake(t *testing.T) {
 		{
 			name:    "\"foo\" yields error",
 			args:    args{
-				t: "foo",
+				flag: "foo",
 			},
 			want:    nil,
 			wantErr: true,
@@ -36,7 +36,7 @@ func TestMake(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := algorithm.Make(tt.args.t)
+			got, err := algorithm.Make(tt.args.flag)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Make() error = %v, wantErr %v", err, tt.wantErr)
 				return

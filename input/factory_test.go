@@ -2,15 +2,15 @@ package input_test
 
 import (
 	"fmt"
-	"github.com/nathanburkett/diff_table/data_transfer"
-	"github.com/nathanburkett/diff_table/input"
+	"github.com/nathanburkett/diff-chart/datatransfer"
+	"github.com/nathanburkett/diff-chart/input"
 	"reflect"
 	"testing"
 )
 
 func TestMake(t *testing.T) {
 	type args struct {
-		t string
+		flag string
 	}
 	tests := []struct {
 		name    string
@@ -21,17 +21,17 @@ func TestMake(t *testing.T) {
 		{
 			name:    fmt.Sprintf("\"%s\" yields CliDiffNumstatReader", input.TypeGit),
 			args:    args{
-				t: input.TypeGit,
+				flag: input.TypeGit,
 			},
 			want:    &input.CliDiffNumstatReader{
-				Output: &data_transfer.Diff{},
+				Output: &datatransfer.Diff{},
 			},
 			wantErr: false,
 		},
 		{
 			name:    "\"foo\" yields error",
 			args:    args{
-				t: "foo",
+				flag: "foo",
 			},
 			want:    nil,
 			wantErr: true,
@@ -39,7 +39,7 @@ func TestMake(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := input.Make(tt.args.t)
+			got, err := input.Make(tt.args.flag)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Make() error = %v, wantErr %v", err, tt.wantErr)
 				return

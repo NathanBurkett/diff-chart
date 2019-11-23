@@ -4,38 +4,45 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"github.com/nathanburkett/diff_table/data_transfer"
+	"github.com/nathanburkett/diff-chart/datatransfer"
 	"io"
 	"strconv"
 )
 
+// TypeGit holds flag for CliDiffNumstatReader
 const TypeGit = "cli"
 
+// Types varying types of input.DiffReader instances that can be built
 var Types = []string{
 	TypeGit,
 }
 
+// DiffReader interface all concrete input diff readers should implement
 type DiffReader interface {
 	Generate(scn *bufio.Scanner) chan [][]byte
-	TransformToDiffRow(fields [][]byte) (*data_transfer.DiffRow, error)
+	TransformToDiffRow(fields [][]byte) (*datatransfer.DiffRow, error)
 }
 
 var (
-	UnexpectedCliDiffColumn = errors.New("unexpected diff report column")
+	// ErrUnexpectedCliDiffColumn indicates an unexpected cli diff column
+	ErrUnexpectedCliDiffColumn = errors.New("unexpected diff report column")
 )
 
+// CliDiffNumstatReader reader which consumes cli diff command output
 type CliDiffNumstatReader struct {
-	Output *data_transfer.Diff
+	Output *datatransfer.Diff
 }
 
-func NewCliDiffNumstatReader(diff *data_transfer.Diff) *CliDiffNumstatReader {
+// NewCliDiffNumstatReader factory func for CliDiffNumstatReader
+func NewCliDiffNumstatReader(diff *datatransfer.Diff) DiffReader {
 	return &CliDiffNumstatReader{
 		Output: diff,
 	}
 }
 
-func Read(drdr DiffReader, rdr io.Reader) (*data_transfer.Diff, error) {
-	diff := new(data_transfer.Diff)
+// Read package level diff reading handler
+func Read(drdr DiffReader, rdr io.Reader) (*datatransfer.Diff, error) {
+	diff := new(datatransfer.Diff)
 	scn := bufio.NewScanner(rdr)
 
 	for cols := range drdr.Generate(scn) {
@@ -50,6 +57,8 @@ func Read(drdr DiffReader, rdr io.Reader) (*data_transfer.Diff, error) {
 	return diff, nil
 }
 
+// Generate generates slice of byte slices which correspond to columnar
+// cli git diff report values
 func (cr *CliDiffNumstatReader) Generate(scanner *bufio.Scanner) chan [][]byte {
 	ch := make(chan [][]byte)
 
@@ -63,8 +72,9 @@ func (cr *CliDiffNumstatReader) Generate(scanner *bufio.Scanner) chan [][]byte {
 	return ch
 }
 
-func (cr *CliDiffNumstatReader) TransformToDiffRow(cols [][]byte) (*data_transfer.DiffRow, error) {
-	row := data_transfer.NewDiffRow()
+// TransformToDiffRow transforms slice of byte slices to DiffRow struct
+func (cr *CliDiffNumstatReader) TransformToDiffRow(cols [][]byte) (*datatransfer.DiffRow, error) {
+	row := datatransfer.NewDiffRow()
 
 	for i, col := range cols {
 		switch i {
@@ -78,9 +88,9 @@ func (cr *CliDiffNumstatReader) TransformToDiffRow(cols [][]byte) (*data_transfe
 			}
 		case 2:
 			row.FullPath = col
-			row.Segments = bytes.Split(col, data_transfer.DirSeparator)
+			row.Segments = bytes.Split(col, datatransfer.DirSeparator)
 		default:
-			return nil, UnexpectedCliDiffColumn
+			return nil, ErrUnexpectedCliDiffColumn
 		}
 	}
 
